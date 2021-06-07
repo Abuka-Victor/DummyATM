@@ -3,6 +3,8 @@ A dummy ATM software with python.
 Created By NIIT student team:
 - Abuka Victor (abukavictoro@gmail.com)
 - Ayoyemi Hamzat (ayoyemihamzat4@gmail.com)
+- Udoakpan
+- Emmanuel
 
 # Program Algorithm
 N.B This is a dummy ATM software so the Name input serves as the Card input.
