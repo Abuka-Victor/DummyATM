@@ -2,18 +2,22 @@ import database
 from tkinter import *
 from PIL import ImageTk
 
+# Window Definition
 window = Tk()
 window.title("Central Banque Of Nigeria")
 window.geometry("1000x667")
 window.resizable(False,False)
 
+# Adding The Background Image
 bgimg = ImageTk.PhotoImage(file="bankappbg.jpg")
 label = Label(window, image=bgimg)
 label.pack()
 
+#Frame For Login
 body = Frame(window)
 body.place(x=290, y=170, width=400, height=450)
 
+#Fields For Login containing the labels, entries and submit button
 accno_label = Label(body, text='Account Number', font=("Andalusia", 15, 'bold'))
 accno_label.place(x='100', y='120')
 
@@ -31,5 +35,5 @@ submit_button.place(x="165", y="280")
 
 
 
-
+#So that the window does not close until we manually close it
 window.mainloop()
