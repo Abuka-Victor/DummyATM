@@ -7,8 +7,8 @@ Created By NIIT student team:
 - Emmanuel
 
 # Program Algorithm
-N.B This is a dummy ATM software so the Name input serves as the Card input.
-1. Insert The Card(Your Name) 
+N.B This is a dummy ATM software so the Account Number input serves as the Card input.
+1. Insert The Card(Your Account Number) 
 2. Check if the account exists.
 3. If the account does not exist:
    1. Prompt the user to Create an account:

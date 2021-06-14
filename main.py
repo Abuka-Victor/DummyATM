@@ -8,10 +8,18 @@ window.title("Central Banque Of Nigeria")
 window.geometry("1000x667")
 window.resizable(False,False)
 
+
 # Adding The Background Image
 bgimg = ImageTk.PhotoImage(file="bankappbg.jpg")
 label = Label(window, image=bgimg)
 label.pack()
+
+
+# functions
+def check():
+    accno = accno_entry.get()
+    accpin = accpin_entry.get()
+
 
 #Frame For Login
 body = Frame(window)
