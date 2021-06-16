@@ -47,7 +47,7 @@ def check():
             accpin_entry.delete(0, END)
     else:
         messagebox.showerror("Error", "ATM NUMBER OR PIN IS INCORRECT")
-# To Quit The Program from The
+# To Quit The Program from The  DashBoard
 def quit():
     Login.deiconify()
     window.withdraw()
