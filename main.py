@@ -5,11 +5,11 @@ from tkinter import messagebox
 
 # Window and Login Definition
 window = Tk()
-window.title("Central Banque Of Nigeria")
+window.title("The People's Bank of Nigeria")
 window.geometry("1000x667")
 window.resizable(False, False)
 Login = Toplevel(window)
-Login.title("Central Banque Of Nigeria")
+Login.title("The People's Bank of Nigeria")
 Login.geometry("1000x667")
 Login.resizable(False, False)
 
@@ -54,7 +54,7 @@ def quit():
 
 
 # Header Greeting on Login
-grt = Label(Login, text="Welcome To The Central Banque Of Nigeria", font=("Times New Roman", 20, "bold"), bg="#1a1a1a",
+grt = Label(Login, text="Welcome To The People's Bank Of Nigeria", font=("Times New Roman", 20, "bold"), bg="#1a1a1a",
             fg="white")
 grt.place(x="0", y="10", width="1000", height="100")
 
@@ -106,9 +106,9 @@ accbal = Label(window, textvariable=balance, font=("monospace", 15, "bold"))
 accbal.place(x="200", y="180")
 
 # Side 1 Buttons
-airtimebutt = Button(side1, text="WITHDRAWAL", activebackground="black", activeforeground="white",
+withdrawalbutt = Button(side1, text="WITHDRAWAL", activebackground="black", activeforeground="white",
                      font=("Helvetica", 15, "bold"))
-airtimebutt.place(x="20", y="180", height="30", width="170")
+withdrawalbutt.place(x="20", y="180", height="30", width="170")
 
 depositbutt = Button(side1, text="DEPOSIT", activebackground="black", activeforeground="white",
                  font=("Helvetica", 15, "bold"))
