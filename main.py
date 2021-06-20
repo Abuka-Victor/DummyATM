@@ -23,7 +23,6 @@ label.pack()
 # Check is for the submit button, this checks with the database whether the details are correct
 
 def check():
-    global var
     accno = accno_entry.get()
     accpin = accpin_entry.get()
     if len(accno) == 10 and len(accpin) == 4:
@@ -43,14 +42,177 @@ def check():
             ballist = connect.fetchone()
             bal = f"Your Account Balance is: {ballist[0]} Naira"
             balance.set(bal)
+            genacc.set(accno)
             accno_entry.delete(0, END)
             accpin_entry.delete(0, END)
     else:
         messagebox.showerror("Error", "ATM NUMBER OR PIN IS INCORRECT")
+
+
 # To Quit The Program from The  DashBoard
 def quit():
     Login.deiconify()
     window.withdraw()
+
+
+# To check BVN
+def bvn():
+    global genacc
+    window = Toplevel()
+    window.geometry("400x300")
+    window.title("BVN")
+    window.resizable(False, False)
+    bvntaglabel = Label(window, text="Your BVN is", font=("Helvetica", 15, "bold"))
+    bvntaglabel.place(x='75', y='90')
+    connect.execute(f"SELECT BVN FROM {table} WHERE Acc_No ='{genacc.get()}'")
+    bvn = connect.fetchone()
+    bvnlabel = Label(window, text=bvn, font=("Helvetica", 25, "bold"))
+    bvnlabel.place(x='75', y='135')
+
+
+# To Withdraw
+def withdraw():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Withdrawal Window")
+    window.resizable(False, False)
+    connect.execute(F"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{genacc.get()}'")
+    accballist = connect.fetchone()
+    accbal = int(accballist[0])
+    amountlabel = Label(window, text="Select Withdrawal Amount", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='100')
+    amtentry = Entry(window, font=("Times New Roman", 15))
+    amtentry.place(x='120', y='150', width='250')
+    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black', command=lambda: amtbutton())
+    amtbutton.place(x='120', y='200', width='250')
+    def amtbutton():
+        amt = int(amtentry.get())
+        if amt > accbal:
+            messagebox.showerror("Error", "Insufficient Funds")
+        else:
+            retbal = (accbal - amt)
+            connect.execute(f"UPDATE {table} SET Acc_Bal = '{retbal}' WHERE Acc_No='{genacc.get()}'")
+            conn.commit()
+            messagebox.showinfo("Success", f"Take Your Cash: {amt}")
+            connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No='{genacc.get()}'")
+            ballist = connect.fetchone()
+            bal = f"Your Account Balance is: {ballist[0]} Naira"
+            balance.set(bal)
+            window.destroy()
+
+
+# To Pay Bills
+def bills():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Withdrawal Window")
+    window.resizable(False, False)
+
+    amountlabel = Label(window, text="Select Withdrawal Amount", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='100')
+
+    amtentry = Entry(window, font=("Times New Roman", 15))
+    amtentry.place(x='120', y='150', width='250')
+
+    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black')
+    amtbutton.place(x='120', y='200', width='250')
+
+
+# To Deposit Money
+def deposit():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Deposit Form")
+    window.resizable(False, False)
+    connect.execute(F"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{genacc.get()}'")
+    accballist = connect.fetchone()
+    accbal = int(accballist[0])
+    amountlabel = Label(window, text="Enter Deposit Amount", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='100')
+
+    amtentry = Entry(window, font=("Times New Roman", 15))
+    amtentry.place(x='120', y='150', width='250')
+
+    depbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black', command=lambda: defbutt())
+    depbutton.place(x='120', y='200', width='250')
+
+    def defbutt():
+        amt = int(amtentry.get())
+        retbal = (amt + accbal)
+        connect.execute(f"UPDATE {table} SET Acc_Bal = '{retbal}' WHERE Acc_No='{genacc.get()}'")
+        conn.commit()
+        messagebox.showinfo("Success", f"You have deposited: {amt}")
+        connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No='{genacc.get()}'")
+        ballist = connect.fetchone()
+        bal = f"Your Account Balance is: {ballist[0]} Naira"
+        balance.set(bal)
+        window.destroy()
+
+
+# To transfer money to diff accounts
+def transfer():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Transfer Window")
+    window.resizable(False, False)
+
+    amountlabel = Label(window, text="Enter Account Number", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='100')
+
+    actentry = Entry(window, font=("Times New Roman", 15))
+    actentry.place(x='120', y='150', width='250')
+
+    amountlabel = Label(window, text="Enter Amount", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='200')
+
+    amtentry = Entry(window, font=("Times New Roman", 15))
+    amtentry.place(x='120', y='250', width='250')
+
+    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black', command=lambda: transferact())
+    amtbutton.place(x='120', y='300', width='250')
+
+    def transferact():
+        global genacc
+        aza = actentry.get()
+        print(aza)
+        amt = int(amtentry.get())
+        print(amt)
+        curramt = int(connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{aza}'"))
+        print(curramt)
+        newamt = (curramt + amt)
+        print(newamt)
+        if (int(connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{genacc.get()}'"))) > amt:
+            messagebox.showerror("Error", "INSUFFICIENT FUNDS IN YOUR ACCOUNT\nTRANSFER TERMINATED")
+        else:
+            accname = connect.execute(f"SELECT First_Name FROM {table} WHERE Acc_No = '{aza}'")
+            connect.execute(f"UPDATE {table} SET Acc_Bal = '{newamt}' WHERE Acc_No='{aza}'")
+            messagebox.showinfo("Success", f"You have Successfully sent {newamt} Naira to {accname}\nPeople's Bank, Nigeria")
+
+
+def airtime():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Withdrawal Window")
+    window.resizable(False, False)
+
+    amountlabel = Label(window, text="Select Withdrawal Amount", font=("Helvetica", 15, "bold"))
+    amountlabel.place(x='120', y='100')
+
+    amtentry = Entry(window, font=("Times New Roman", 15))
+    amtentry.place(x='120', y='150', width='250')
+
+    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black')
+    amtbutton.place(x='120', y='200', width='250')
 
 
 # Header Greeting on Login
@@ -107,33 +269,34 @@ accbal.place(x="200", y="180")
 
 # Side 1 Buttons
 withdrawalbutt = Button(side1, text="WITHDRAWAL", activebackground="black", activeforeground="white",
-                     font=("Helvetica", 15, "bold"))
+                        font=("Helvetica", 15, "bold"), command=lambda: withdraw())
 withdrawalbutt.place(x="20", y="180", height="30", width="170")
 
 depositbutt = Button(side1, text="DEPOSIT", activebackground="black", activeforeground="white",
-                 font=("Helvetica", 15, "bold"))
+                     font=("Helvetica", 15, "bold"), command=lambda: deposit())
 depositbutt.place(x="20", y="280", height="30", width="170")
 
 transferbutt = Button(side1, text="TRANSFER", activebackground="black", activeforeground="white",
-                     font=("Helvetica", 15, "bold"))
+                      font=("Helvetica", 15, "bold"), command=lambda: transfer())
 transferbutt.place(x="20", y="380", height="30", width="170")
 
 billsbutt = Button(side1, text="PAY BILLS", activebackground="black", activeforeground="white",
-                   font=("Helvetica", 15, "bold"))
+                   font=("Helvetica", 15, "bold"), command=lambda: bills())
 billsbutt.place(x="20", y="480", height="30", width="170")
 
 # Side 2 Buttons
 airtimebutt = Button(side2, text="AIRTIME", activebackground="black", activeforeground="white",
-                     font=("Helvetica", 15, "bold"))
+                     font=("Helvetica", 15, "bold"), command=lambda: airtime())
 airtimebutt.place(x="20", y="180", height="30", width="170")
 
 checkbvnbutt = Button(side2, text="CHECK BVN", activebackground="black", activeforeground="white",
-                 font=("Helvetica", 15, "bold"))
+                      font=("Helvetica", 15, "bold"), command=lambda: bvn())
 checkbvnbutt.place(x="20", y="280", height="30", width="170")
+genacc = StringVar()
 
-airtimebutt = Button(side2, text="AIRTIME", activebackground="black", activeforeground="white",
-                     font=("Helvetica", 15, "bold"))
-airtimebutt.place(x="20", y="380", height="30", width="170")
+cpinbutt = Button(side2, text="CHANGE PIN", activebackground="black", activeforeground="white",
+                     font=("Helvetica", 15, "bold"), command=lambda: airtime())
+cpinbutt.place(x="20", y="380", height="30", width="170")
 
 billsbutt = Button(side2, text="QUIT", activebackground="black", activeforeground="white",
                    font=("Helvetica", 15, "bold"), command=lambda: quit())
