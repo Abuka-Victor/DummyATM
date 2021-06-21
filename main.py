@@ -96,6 +96,8 @@ def withdraw():
             connect.execute(f"UPDATE {table} SET Acc_Bal = '{retbal}' WHERE Acc_No='{genacc.get()}'")
             conn.commit()
             messagebox.showinfo("Success", f"Take Your Cash: {amt}")
+            connect.execute(f"INSERT INTO {table2} VALUES({genacc.get()}, 'Withdrawal', {amt})")
+            conn.commit()
             connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No='{genacc.get()}'")
             ballist = connect.fetchone()
             bal = f"Your Account Balance is: {ballist[0]} Naira"
@@ -107,19 +109,29 @@ def withdraw():
 def bills():
     global genacc
     window = Toplevel()
-    window.geometry("500x500")
-    window.title("Withdrawal Window")
+    window.geometry("700x500")
+    window.title("Bills")
     window.resizable(False, False)
 
-    amountlabel = Label(window, text="Select Withdrawal Amount", font=("Helvetica", 15, "bold"))
-    amountlabel.place(x='120', y='100')
+    servicelabel = Label(window, text="Select Service", font=("Helvetica", 15, "bold"))
+    servicelabel.place(x='50', y='50')
 
-    amtentry = Entry(window, font=("Times New Roman", 15))
-    amtentry.place(x='120', y='150', width='250')
+    radio1 = IntVar()
+    electbutton = Radiobutton(window, text="PHCN", var=radio1, value=1, font=("Helvetica", 15, "bold"))
+    electbutton.place(x='100', y='100')
+    dstvbutton = Radiobutton(window, text="DSTV", var=radio1, value=2, font=("Helvetica", 15, "bold"))
+    dstvbutton.place(x='200', y='100')
+    gotvbutton = Radiobutton(window, text="GOTV", var=radio1, value=3, font=("Helvetica", 15, "bold"))
+    gotvbutton.place(x='300', y='100')
+    waterbutton = Radiobutton(window, text="WATER DISTRIBUTION\nSERVICE", var=radio1, value=4, font=("Helvetica", 15, "bold"))
+    waterbutton.place(x='400', y='87')
 
-    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
-                       activebackground='white', activeforeground='black')
-    amtbutton.place(x='120', y='200', width='250')
+    quitbutton = Button(window, text="Quit", font=("Helvetica", 15, "bold"), command=lambda: quitair(),
+                        activeforeground='white', activebackground='black')
+    quitbutton.place(x='200', y='50', height='30', width='100')
+
+    def quitair():
+        window.destroy()
 
 
 # To Deposit Money
@@ -182,37 +194,133 @@ def transfer():
     def transferact():
         global genacc
         aza = actentry.get()
-        print(aza)
         amt = int(amtentry.get())
-        print(amt)
-        curramt = int(connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{aza}'"))
-        print(curramt)
-        newamt = (curramt + amt)
-        print(newamt)
-        if (int(connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{genacc.get()}'"))) > amt:
+        connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{genacc.get()}'")
+        sndcurramt = int((connect.fetchone()[0]))
+        connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No = '{aza}'")
+        rcpcurramt = int(connect.fetchone()[0])
+        rcpnewamt = (rcpcurramt + amt)
+        sndnewamt = (sndcurramt - amt)
+        if sndcurramt < amt:
             messagebox.showerror("Error", "INSUFFICIENT FUNDS IN YOUR ACCOUNT\nTRANSFER TERMINATED")
         else:
-            accname = connect.execute(f"SELECT First_Name FROM {table} WHERE Acc_No = '{aza}'")
-            connect.execute(f"UPDATE {table} SET Acc_Bal = '{newamt}' WHERE Acc_No='{aza}'")
-            messagebox.showinfo("Success", f"You have Successfully sent {newamt} Naira to {accname}\nPeople's Bank, Nigeria")
+            connect.execute(f"SELECT First_Name FROM {table} WHERE Acc_No = '{aza}'")
+            accname = connect.fetchone()[0]
+            connect.execute(f"UPDATE {table} SET Acc_Bal = '{rcpnewamt}' WHERE Acc_No='{aza}'")
+            connect.execute(f"UPDATE {table} SET Acc_Bal = '{sndnewamt}' WHERE Acc_No='{genacc.get()}'")
+            connect.execute(f"SELECT Acc_Bal FROM {table} WHERE Acc_No='{genacc.get()}'")
+            ballist = connect.fetchone()
+            bal = f"Your Account Balance is: {ballist[0]} Naira"
+            balance.set(bal)
+            messagebox.showinfo("Success", f"You have Successfully sent {amt} Naira to {accname}\nPeople's Bank, Nigeria")
+            window.destroy()
+
+
+def cngpin():
+    global genacc
+    window = Toplevel()
+    window.geometry("500x500")
+    window.title("Change Pin")
+    window.resizable(False, False)
+
+    currpinlabel = Label(window, text="Enter Current Pin", font=("Helvetica", 15, "bold"))
+    currpinlabel.place(x='120', y='100')
+
+    currpinentry = Entry(window, font=("Times New Roman", 15))
+    currpinentry.place(x='120', y='150', width='250')
+
+    newpinlabel = Label(window, text="Enter New Pin", font=("Helvetica", 15, "bold"))
+    newpinlabel.place(x='120', y='200')
+
+    newpinentry = Entry(window, font=("Times New Roman", 15))
+    newpinentry.place(x='120', y='250', width='250')
+
+    cfmnewpinlabel = Label(window, text="Confirm New Pin", font=("Helvetica", 15, "bold"))
+    cfmnewpinlabel.place(x='120', y='300')
+
+    cfmnewpinentry = Entry(window, font=("Times New Roman", 15))
+    cfmnewpinentry.place(x='120', y='350', width='250')
+
+    pinbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
+                       activebackground='white', activeforeground='black', command=lambda: changepin())
+    pinbutton.place(x='120', y='400', width='250')
+    def changepin():
+        currpin = currpinentry.get()
+        newpin = newpinentry.get()
+        cfmnewpin = cfmnewpinentry.get()
+        connect.execute(f"SELECT Pin FROM {table} WHERE Acc_No = '{genacc.get()}'")
+        dbcurrpin = str(connect.fetchone()[0])
+        if dbcurrpin != currpin:
+            messagebox.showerror("Error", "You Have Entered An Incorrect Pin")
+        else:
+            if cfmnewpin == newpin:
+                connect.execute(f"UPDATE {table} SET Pin = '{int(newpin)}' WHERE Acc_No='{genacc.get()}'")
+                messagebox.showinfo("Success", "You Have Successfully Changed Your Pin")
+                window.destroy()
+            else:
+                messagebox.showerror("Error", "The new pins you have entered do not match!")
+                window.destroy()
 
 
 def airtime():
     global genacc
     window = Toplevel()
-    window.geometry("500x500")
-    window.title("Withdrawal Window")
+    window.geometry("600x400")
+    window.title("Airtime Window")
     window.resizable(False, False)
 
-    amountlabel = Label(window, text="Select Withdrawal Amount", font=("Helvetica", 15, "bold"))
-    amountlabel.place(x='120', y='100')
+    netlabel = Label(window, text="Select Network", font=("Helvetica", 15, "bold"))
+    netlabel.place(x='50', y='50')
 
-    amtentry = Entry(window, font=("Times New Roman", 15))
-    amtentry.place(x='120', y='150', width='250')
+    radio = IntVar()
+    Airtelbutton = Radiobutton(window, text="Airtel", var=radio, value=1, font=("Helvetica", 15, "bold"),
+                               command=lambda: cred())
+    Airtelbutton.place(x='100', y='100')
+    globutton = Radiobutton(window, text="Glo", var=radio, value=2, font=("Helvetica", 15, "bold"), command=lambda: cred())
+    globutton.place(x='200', y='100')
+    mtnbutton = Radiobutton(window, text="Mtn", var=radio, value=3, font=("Helvetica", 15, "bold"), command=lambda: cred())
+    mtnbutton.place(x='300', y='100')
+    ninemobilebutton = Radiobutton(window, text="9Mobile", var=radio, value=4, font=("Helvetica", 15, "bold"),
+                                   command=lambda: cred())
+    ninemobilebutton.place(x='400', y='100')
 
-    amtbutton = Button(window, font=("Times New Roman", 15), text='Submit', bg='black', fg='white',
-                       activebackground='white', activeforeground='black')
-    amtbutton.place(x='120', y='200', width='250')
+    quitbutton = Button(window, text="Quit", font=("Helvetica", 15, "bold"), command=lambda: quitair(), activeforeground='white', activebackground='black')
+    quitbutton.place(x='200', y='50', height='30', width='100')
+
+    def quitair():
+        window.destroy()
+
+    def cred():
+        import random
+        value = radio.get()
+        if value == 1:
+            code = random.randint(000000000000, 999999999999)
+            result = Label(window, text="Enter This Code:", font=("Helvetica", 15, "bold"))
+            result.place(x='50', y='150')
+
+            result1 = Label(window, text=f"{code}", font=("Helvetica", 15, "bold"))
+            result1.place(x='250', y='150')
+        elif value == 2:
+            code = random.randint(000000000000, 999999999999)
+            result = Label(window, text="Enter This Code:", font=("Helvetica", 15, "bold"))
+            result.place(x='50', y='150')
+
+            result1 = Label(window, text=f"{code}", font=("Helvetica", 15, "bold"))
+            result1.place(x='250', y='150')
+        elif value == 3:
+            code = random.randint(000000000000, 999999999999)
+            result = Label(window, text="Enter This Code:", font=("Helvetica", 15, "bold"))
+            result.place(x='50', y='150')
+
+            result1 = Label(window, text=f"{code}", font=("Helvetica", 15, "bold"))
+            result1.place(x='250', y='150')
+        elif value == 4:
+            code = random.randint(000000000000, 999999999999)
+            result = Label(window, text="Enter This Code:", font=("Helvetica", 15, "bold"))
+            result.place(x='50', y='150')
+
+            result1 = Label(window, text=f"{code}", font=("Helvetica", 15, "bold"))
+            result1.place(x='250', y='150')
 
 
 # Header Greeting on Login
@@ -295,7 +403,7 @@ checkbvnbutt.place(x="20", y="280", height="30", width="170")
 genacc = StringVar()
 
 cpinbutt = Button(side2, text="CHANGE PIN", activebackground="black", activeforeground="white",
-                     font=("Helvetica", 15, "bold"), command=lambda: airtime())
+                     font=("Helvetica", 15, "bold"), command=lambda: cngpin())
 cpinbutt.place(x="20", y="380", height="30", width="170")
 
 billsbutt = Button(side2, text="QUIT", activebackground="black", activeforeground="white",
