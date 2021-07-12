@@ -9,3 +9,11 @@ conn = MySQLdb.connect(
 )
 
 connect = conn.cursor()
+
+# import pyodbc
+# conn = pyodbc.connect('Driver={SQL Server};'
+#                       'Server=VICTOR-PC;'
+#                       'Database=DummyATM;'
+#                       'Trusted_Connection=yes;')
+#
+# cursor = conn.cursor()
